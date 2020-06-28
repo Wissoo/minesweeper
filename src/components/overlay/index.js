@@ -1,19 +1,30 @@
 import React from 'react'
-import {constants} from "../../config/store";
+import {constantsStore} from "../../config/store";
+import StateHandler from "../stateHandler";
 
 class Overlay extends React.Component {
     /**
-     * MOUSE EVENT
+     * BOTTOM EVENT
      */
     handlePlay() {
-        constants.dispatch({type: 'PLAY'})
+        constantsStore.dispatch({type: 'OVERLAYOFF'})
     }
 
     render() {
         return (
-            <div
-            className={'overlay'}>
-                <button onClick={this.handlePlay} onContextMenu={this.handleRightTarget}>Play</button>
+            <div className={'overlay'} onContextMenu={(e) => (e.preventDefault())}>
+                <h1>MINESWEEPER</h1>
+                <h3>{(constantsStore.getState().endgame === 1 ? 'Win' : (constantsStore.getState().endgame === -1) ? 'Lose' : '')}</h3>
+                <div className="menu">
+                    <label>Grid Size</label>
+                    <br/>
+                    x
+                    <StateHandler order="column"/>
+                    y
+                    <StateHandler order="row"/>
+                    <br/>
+                    <button onClick={this.handlePlay} onContextMenu={(e) => (e.preventDefault())}>GO</button>
+                </div>
             </div>
         )
     }

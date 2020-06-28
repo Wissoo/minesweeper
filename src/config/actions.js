@@ -1,12 +1,18 @@
-import {constants, zoneStore} from "./store";
-import {globalAction, namespacedAction} from "redux-subspace";
+import {constantsStore} from "./store";
+
+// GLOBAL
+export const RESET = 'RESET'
 
 // MATRIX
-export const ADDCHECKED = 'ADDCHECKED'
-export const PAUSE = 'PAUSE'
-export const PLAY = 'PLAY'
-export const END = 'END'
-export const RESET = 'RESET'
+export const CHECKER = 'CHECKER'
+export const OVERLAYON = 'OVERLAYON'
+export const OVERLAYOFF = 'OVERLAYOFF'
+export const NEWGAME = 'NEWGAME'
+export const WIN = 'WIN'
+export const LOSE = 'LOSE'
+
+export const SETCOLUMN = 'SETCOLUMN'
+export const SETROW = 'SETROW'
 
 // ZONE
 export const MINE = 'MINE'
@@ -16,46 +22,24 @@ export const HIGHLIGHT = 'HIGHLIGHT'
 export const INCREMENTNEIGHBOURHOOD = 'INCREMENTNEIGHBOURHOOD'
 
 
-// Statics functions -> Bugged functions (a full rework is needed)
-/**
- * Check a zone with his position
- * If the zone is mined, show all zone and endgame
- * Also show the zone and neighbourhood zones too
- * @param pos
- */
-export function check(pos) {
-    zoneStore.dispatch(namespacedAction('' + pos)({type: 'SHOW'}))
-
-    if (zoneStore.getState()[pos].mined) {
-        zoneStore.dispatch(globalAction({type: 'SHOW'}))
-        constants.dispatch({type: 'END', zones: zoneStore.getState()})
-    } else {
-        constants.dispatch({type: 'ADDCHECKED', position: pos})
-        // CHECK ARROUND
-        if (!zoneStore.getState()[pos].minedNeighbours && !zoneStore.getState()[pos].mined) {
-            neighbourhood(pos).filter(x => !Object.values(constants.getState().checked).includes(x)).map(e => check(e))
-        }
-        // ENDGAME IF ALL ZONE ARE SHOWED
-        if (Object.keys(zoneStore.getState()).length === Object.keys(constants.getState().checked).length) {
-            constants.dispatch({type: 'END', zones: zoneStore.getState()})
-        }
-    }
-}
-
+// Statics functions
 /**
  * Get all 8 (or less) neighbourhood of a zone
- * @param pos
+ * @param {Number} pos
  * @returns {[]} 1..8 zone position
  */
 export function neighbourhood(pos) {
     let neighbourhood = []
-    let column = constants.getState().column
-    let row = constants.getState().row
-    let topBound = (pos > column)
-    let rightBound = (pos % column !== 0)
-    let bottomBound = (pos < row * column - 10)
-    let leftBound = (pos % column !== 1)
 
+    let column = constantsStore.getState().column
+    let row = constantsStore.getState().row
+
+    let topBound = (pos >= column)
+    let rightBound = (pos % column !== column - 1)
+    let bottomBound = (pos < column * (row - 1))
+    let leftBound = (pos % column !== 0)
+
+    // Top
     if (topBound && leftBound) {
         neighbourhood.push(pos - column - 1)
     }
@@ -66,8 +50,9 @@ export function neighbourhood(pos) {
         neighbourhood.push(pos - column + 1)
     }
 
+    // Bottom
     if (bottomBound && leftBound) {
-        neighbourhood.push(pos + column - 1)
+        neighbourhood.push((pos + column) - 1)
     }
     if (bottomBound) {
         neighbourhood.push(pos + column)
@@ -76,11 +61,13 @@ export function neighbourhood(pos) {
         neighbourhood.push(pos + column + 1)
     }
 
+    // Left and Right
     if (leftBound) {
         neighbourhood.push(pos - 1)
     }
     if (rightBound) {
         neighbourhood.push(pos + 1)
     }
+
     return neighbourhood
 }

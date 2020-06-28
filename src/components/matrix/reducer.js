@@ -1,27 +1,42 @@
 import * as actionType from '../../config/actions';
 
 export const initialState = {
-    pause: false,
-    endgame: false,
-    column: 10,
-    row: 10,
-    zonePixelSize: 20,
-    mineNumber: 10,
-    checked: {}
+    // System evaluation
+    overlay: true,
+    endgame: 0,
+    checked: {},
+
+    // Game variable
+    column: 20,
+    row: 20,
+    zonePixelSize: 40,
+    mineNumber: 16,
 }
 
 function matrix(state = initialState, action) {
     switch (action.type) {
-        case actionType.ADDCHECKED:
+        case actionType.CHECKER:
             return {...state, checked: {...state.checked, [action.position]: action.position}}
-        case actionType.PAUSE:
-            return {...state, pause: true}
-        case actionType.PLAY:
-            return {...state, pause: false}
-        case actionType.END:
-            return {...state, endgame: true, checked: action.zones}
+
+        case actionType.OVERLAYON:
+            return {...state, overlay: true}
+        case actionType.OVERLAYOFF:
+            return {...state, overlay: false}
+
+        case actionType.NEWGAME:
+            return {...state, endgame: 0}
+        case actionType.WIN:
+            return {...state, endgame: 1}
+        case actionType.LOSE:
+            return {...state, endgame: -1}
+
+        case actionType.SETCOLUMN:
+            return {...state, column: action.value}
+        case actionType.SETROW:
+            return {...state, row: action.value}
+
         case actionType.RESET:
-            return {...state, endgame: false}
+            return {...initialState, column: state.column, row: state.row, endgame: state.endgame}
         default:
             return state
     }

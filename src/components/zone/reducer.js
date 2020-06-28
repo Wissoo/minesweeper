@@ -4,7 +4,7 @@ export const initialState = {
     mined: false,
     hidden: true,
     highlight: false,
-    minedNeighbours: 0
+    minedNeighbours: 0,
 }
 
 function zone(state = initialState, action) {
@@ -23,6 +23,8 @@ function zone(state = initialState, action) {
         case actionType.INCREMENTNEIGHBOURHOOD:
             return {...state, minedNeighbours: state.minedNeighbours + 1}
 
+        case actionType.RESET:
+            return initialState
         default:
             return state
     }
